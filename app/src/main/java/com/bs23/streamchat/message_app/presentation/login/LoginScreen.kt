@@ -41,9 +41,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel = koinViewModel(),
     goChannelScreen: (String) -> Unit,
 ) {
-    val viewModel: LoginViewModel = koinViewModel()
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     when(uiState){
         is BaseUiState.Data -> {

@@ -12,7 +12,8 @@ class LoginViewModel(
 
     private var _uiState = LoginScreenUiState()
 
-    init {
+    fun initUiState(){
+        _uiState = LoginScreenUiState()
         setState(BaseUiState.Data(_uiState))
     }
 
@@ -54,7 +55,7 @@ class LoginViewModel(
     private fun loginAsUser() = safeLaunch {
         client.connectUser(
             user = User(name = _uiState.userName, id = _uiState.userName),
-            token = BuildConfig.TOKEN
+            token = if(_uiState.userName == "ARRAHAT") BuildConfig.TOKEN else BuildConfig.TOKEN_USER_2
         ).enqueue { result ->
             if (result.isSuccess) {
                 _uiState = _uiState.copy(

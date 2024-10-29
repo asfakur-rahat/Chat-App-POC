@@ -9,11 +9,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.bs23.streamchat.message_app.presentation.channels.ChannelListScreen
 import com.bs23.streamchat.message_app.presentation.login.LoginScreen
+import com.bs23.streamchat.message_app.presentation.login.LoginViewModel
 import com.bs23.streamchat.message_app.presentation.message.ChannelMessageScreen
+import com.bs23.streamchat.message_app.presentation.signup.SignUpScreen
+import com.bs23.streamchat.message_app.presentation.signup.SignupViewModel
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 @Serializable
 data object Login
+
+@Serializable
+data object SignUp
 
 @Serializable
 data class  Channel(val userId: String)
@@ -26,9 +33,22 @@ data class  Message(val channelId: String, val channelName: String)
 fun AppNavigation(
     navController: NavHostController,
 ){
-    NavHost(startDestination = Login, navController = navController){
+    NavHost(startDestination = SignUp, navController = navController){
+        composable<SignUp> {
+            val viewModel: SignupViewModel = koinViewModel()
+            viewModel.initUiState()
+            SignUpScreen(viewModel) { userID ->
+                navController.navigate(Channel(userID)) {
+                    popUpTo<SignUp> {
+                        inclusive = true
+                    }
+                }
+            }
+        }
         composable<Login> {
-            LoginScreen {
+            val viewModel: LoginViewModel = koinViewModel()
+            viewModel.initUiState()
+            LoginScreen(viewModel) {
                 navController.navigate(Channel(it))
             }
         }
@@ -42,6 +62,13 @@ fun AppNavigation(
                 },
                 onDismiss = {
                     activity.finish()
+                },
+                onLogout = {
+                    navController.navigate(SignUp){
+                        popUpTo<Channel>{
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }

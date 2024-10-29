@@ -3,6 +3,9 @@ package com.bs23.streamchat.message_app.presentation.channels
 import com.bs23.streamchat.core.presentation.base.BaseUiState
 import com.bs23.streamchat.core.presentation.base.MVIViewModel
 import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.api.models.QueryChannelsRequest
+import io.getstream.chat.android.models.Filters
+import io.getstream.chat.android.models.querysort.QuerySortByField
 import java.util.UUID
 
 class ChannelViewModel(
@@ -18,25 +21,47 @@ class ChannelViewModel(
     override fun onTriggerEvent(eventType: ChannelListScreenEvent) {
         when(eventType){
             is ChannelListScreenEvent.OnCreateNewChannel -> createNewChannel(eventType.channelName)
-            ChannelListScreenEvent.OnClickCreateNewChannel -> {
-                _uiState = _uiState.copy(showDialog = true)
-                setState(BaseUiState.Data(_uiState))
-            }
-            is ChannelListScreenEvent.SetCurrentUser -> {
-                _uiState = _uiState.copy(currentUsername = eventType.username)
-                setState(BaseUiState.Data(_uiState))
-            }
 
-            ChannelListScreenEvent.DisMissDialog -> {
-                _uiState = _uiState.copy(showDialog = false)
-                setState(BaseUiState.Data(_uiState))
-            }
+            ChannelListScreenEvent.OnClickCreateNewChannel -> toogleDialog(true)
 
-            ChannelListScreenEvent.OnClickLogout -> {
-                client.disconnect(false).enqueue()
-                _uiState = _uiState.copy(isLoggedIn = false)
-                setState(BaseUiState.Data(_uiState))
-            }
+            is ChannelListScreenEvent.SetCurrentUser -> setCurrentUsername(eventType.username)
+
+            ChannelListScreenEvent.DisMissDialog -> toogleDialog(false)
+
+            ChannelListScreenEvent.OnClickLogout -> logOut()
+        }
+    }
+
+    private fun setCurrentUsername(username: String){
+        _uiState = _uiState.copy(currentUsername = username)
+        setState(BaseUiState.Data(_uiState))
+    }
+
+    private fun toogleDialog(show: Boolean){
+        _uiState = _uiState.copy(showDialog = show)
+        setState(BaseUiState.Data(_uiState))
+    }
+
+    private fun logOut(){
+        client.disconnect(false).enqueue()
+        _uiState = _uiState.copy(isLoggedIn = false)
+        setState(BaseUiState.Data(_uiState))
+    }
+
+    private fun queryChannel(){
+        val request = QueryChannelsRequest(
+            filter = Filters.and(
+                Filters.eq("type", "messaging")
+            ),
+            offset = 0,
+            limit = 10,
+            querySort = QuerySortByField.descByName("lastMessageAt")
+        ).apply {
+            watch = true
+            state = true
+        }
+        client.queryChannels(request).enqueue { result ->
+
         }
     }
 
