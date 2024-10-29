@@ -13,6 +13,7 @@ import com.bs23.streamchat.message_app.presentation.login.LoginViewModel
 import com.bs23.streamchat.message_app.presentation.message.ChannelMessageScreen
 import com.bs23.streamchat.message_app.presentation.signup.SignUpScreen
 import com.bs23.streamchat.message_app.presentation.signup.SignupViewModel
+//import kotlinx.coroutines.channels.Channel
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
@@ -23,27 +24,36 @@ data object Login
 data object SignUp
 
 @Serializable
-data class  Channel(val userId: String)
+data class Channel(val userId: String)
 
 @Serializable
-data class  Message(val channelId: String, val channelName: String)
+data class Message(val channelId: String, val channelName: String)
 
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-){
-    NavHost(startDestination = SignUp, navController = navController){
+) {
+    NavHost(startDestination = SignUp, navController = navController) {
         composable<SignUp> {
             val viewModel: SignupViewModel = koinViewModel()
             viewModel.initUiState()
-            SignUpScreen(viewModel) { userID ->
-                navController.navigate(Channel(userID)) {
-                    popUpTo<SignUp> {
-                        inclusive = true
+            SignUpScreen(viewModel,
+                onNavigate = { userID ->
+                    navController.navigate(Channel(userID)) {
+                        popUpTo<SignUp> {
+                            inclusive = true
+                        }
+                    }
+                },
+                gotoLogIn = {
+                    navController.navigate(Login){
+                        popUpTo<SignUp> {
+                            inclusive = true
+                        }
                     }
                 }
-            }
+            )
         }
         composable<Login> {
             val viewModel: LoginViewModel = koinViewModel()
@@ -58,14 +68,19 @@ fun AppNavigation(
             ChannelListScreen(
                 userId = channel.userId,
                 onChannelClick = { channelId, channelName ->
-                    navController.navigate(Message(channelId = channelId, channelName = channelName))
+                    navController.navigate(
+                        Message(
+                            channelId = channelId,
+                            channelName = channelName
+                        )
+                    )
                 },
                 onDismiss = {
                     activity.finish()
                 },
                 onLogout = {
-                    navController.navigate(SignUp){
-                        popUpTo<Channel>{
+                    navController.navigate(SignUp) {
+                        popUpTo<Channel> {
                             inclusive = true
                         }
                     }

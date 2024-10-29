@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +43,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SignUpScreen(
     viewModel: SignupViewModel = koinViewModel(),
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    gotoLogIn: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     when(uiState){
@@ -51,7 +53,8 @@ fun SignUpScreen(
             SignUpScreenContent(
                 uiState = data,
                 onEvent = viewModel::onTriggerEvent,
-                onNavigate = onNavigate
+                onNavigate = onNavigate,
+                gotoLogIn = gotoLogIn
             )
         }
         BaseUiState.Empty -> {
@@ -71,7 +74,8 @@ fun SignUpScreen(
 fun SignUpScreenContent(
     uiState: SignupScreenUiState,
     onEvent: (SignupScreenEvent) -> Unit,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    gotoLogIn: () -> Unit
 ) {
     LaunchedEffect(uiState.signUpSuccessful) {
         if(uiState.signUpSuccessful) {
@@ -217,6 +221,12 @@ fun SignUpScreenContent(
                     shape = RoundedCornerShape(25)
                 ) {
                     Text(text = "Sign Up".uppercase())
+                }
+
+                TextButton(
+                    onClick = gotoLogIn
+                ) {
+                    Text(text = "Already have an account? Log In")
                 }
             }
         }
