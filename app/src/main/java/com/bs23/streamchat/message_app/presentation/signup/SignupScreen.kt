@@ -43,7 +43,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SignUpScreen(
     viewModel: SignupViewModel = koinViewModel(),
-    onNavigate: (String) -> Unit,
     gotoLogIn: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -53,7 +52,6 @@ fun SignUpScreen(
             SignUpScreenContent(
                 uiState = data,
                 onEvent = viewModel::onTriggerEvent,
-                onNavigate = onNavigate,
                 gotoLogIn = gotoLogIn
             )
         }
@@ -74,14 +72,13 @@ fun SignUpScreen(
 fun SignUpScreenContent(
     uiState: SignupScreenUiState,
     onEvent: (SignupScreenEvent) -> Unit,
-    onNavigate: (String) -> Unit,
     gotoLogIn: () -> Unit
 ) {
-    LaunchedEffect(uiState.signUpSuccessful) {
-        if(uiState.signUpSuccessful) {
-            onNavigate(uiState.userID)
-        }
-    }
+//    LaunchedEffect(uiState.signUpSuccessful) {
+//        if(uiState.signUpSuccessful) {
+//            onNavigate(uiState.userID)
+//        }
+//    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()

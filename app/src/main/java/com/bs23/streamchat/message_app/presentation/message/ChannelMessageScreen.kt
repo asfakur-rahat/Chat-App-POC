@@ -50,18 +50,14 @@ fun ChannelMessageScreen(
                 onEvent = viewModel::onTriggerEvent,
                 goBack = goBack
             )
-
         }
-
         BaseUiState.Empty -> {
             EmptyScreen(Modifier)
         }
-
         is BaseUiState.Error -> {
             val error = uiState.cast<BaseUiState.Error>().error
             ErrorScreen(Modifier, error)
         }
-
         BaseUiState.Loading -> {
             LoadingScreen(Modifier)
         }
@@ -122,7 +118,6 @@ fun ChannelMessageContent(
                         channelId = channelId,
                     ),
                     onBackPressed = {
-                        //println("onBackPress invoked")
                         goBack.invoke()
                     }
                 )

@@ -16,6 +16,7 @@ import com.bs23.streamchat.message_app.presentation.login.LoginScreenEffect
 import com.bs23.streamchat.message_app.presentation.login.LoginViewModel
 import com.bs23.streamchat.message_app.presentation.message.ChannelMessageScreen
 import com.bs23.streamchat.message_app.presentation.signup.SignUpScreen
+import com.bs23.streamchat.message_app.presentation.signup.SignupScreenEffect
 import com.bs23.streamchat.message_app.presentation.signup.SignupViewModel
 //import kotlinx.coroutines.channels.Channel
 import kotlinx.serialization.Serializable
@@ -42,14 +43,18 @@ fun AppNavigation(
         composable<SignUp> {
             val viewModel: SignupViewModel = koinViewModel()
             viewModel.initUiState()
-            SignUpScreen(viewModel,
-                onNavigate = { userID ->
-                    navController.navigate(Channel(userID)) {
-                        popUpTo<SignUp> {
-                            inclusive = true
+            ObserveAsEvents(viewModel.effect) { effect ->
+                when(effect){
+                    is SignupScreenEffect.NavigateToChannelScreen -> {
+                        navController.navigate(Channel(effect.userID)) {
+                            popUpTo<SignUp> {
+                                inclusive = true
+                            }
                         }
                     }
-                },
+                }
+            }
+            SignUpScreen(viewModel,
                 gotoLogIn = {
                     navController.navigate(Login){
                         popUpTo<SignUp> {

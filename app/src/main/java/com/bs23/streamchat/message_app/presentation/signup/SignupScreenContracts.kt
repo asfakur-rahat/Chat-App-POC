@@ -11,7 +11,6 @@ data class SignupScreenUiState(
     val confirmPasswordError: String? = null,
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
-    val signUpSuccessful: Boolean = false,
     val userID: String = ""
 )
 
@@ -24,5 +23,5 @@ sealed interface SignupScreenEvent {
 }
 
 sealed interface SignupScreenEffect {
-
+    data class NavigateToChannelScreen(val userID: String): SignupScreenEffect
 }
