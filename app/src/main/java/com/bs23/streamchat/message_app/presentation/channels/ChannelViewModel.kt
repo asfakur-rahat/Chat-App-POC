@@ -7,8 +7,8 @@ import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.api.models.QueryChannelsRequest
 import io.getstream.chat.android.client.api.models.QueryUsersRequest
 import io.getstream.chat.android.models.Filters
+import io.getstream.chat.android.models.User
 import io.getstream.chat.android.models.querysort.QuerySortByField
-import io.getstream.result.call.enqueue
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,6 +39,8 @@ class ChannelViewModel(
             is ChannelListScreenEvent.OnQueryChange -> onChangeSearchQuery(eventType.newQuery)
 
             is ChannelListScreenEvent.OnSearch -> onSearch(query = eventType.query)
+
+            is ChannelListScreenEvent.OnClickSearchedUser -> queryChannel(eventType.user)
         }
     }
 
@@ -61,7 +63,7 @@ class ChannelViewModel(
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
-            delay(3000)
+            delay(1000)
             val request = QueryUsersRequest(
                 filter = Filters.and(
                     Filters.autocomplete("name", query),
@@ -101,20 +103,34 @@ class ChannelViewModel(
         setState(BaseUiState.Data(_uiState))
     }
 
-    private fun queryChannel(){
-        val request = QueryChannelsRequest(
-            filter = Filters.and(
-                Filters.eq("type", "messaging")
-            ),
-            offset = 0,
-            limit = 10,
-            querySort = QuerySortByField.descByName("lastMessageAt")
-        ).apply {
-            watch = true
-            state = true
-        }
-        client.queryChannels(request).enqueue { result ->
+    @Suppress("UNUSED")
+    private fun queryChannel(user: User){
+        client.getCurrentUser()?.let{ currentUser ->
+            val request = QueryChannelsRequest(
+                filter = Filters.and(
+                    Filters.eq("type", "messaging"),
+                    Filters.`in`("members", listOf(currentUser.id)),
+                    Filters.`in`("members", listOf(user.id))
+                ),
+                offset = 0,
+                limit = 1,
+                querySort = QuerySortByField.descByName("lastMessageAt"),
+                memberLimit = 2
+            ).apply {
+                watch = true
+                state = true
+            }
+            client.queryChannels(request).enqueue { result ->
+                result.onSuccess {
+                    if(it.isNotEmpty()){
 
+                    }else{
+
+                    }
+                }.onError {
+                    println(it.message)
+                }
+            }
         }
     }
 

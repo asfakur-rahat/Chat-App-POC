@@ -8,6 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -308,12 +309,16 @@ fun ChannelListScreenContent(
                         ) {
                             LazyHorizontalGrid(
                                 rows = GridCells.Fixed(2),
-                                modifier = Modifier.wrapContentHeight().heightIn(min = 100.dp, max = 200.dp)
+                                modifier = Modifier.wrapContentHeight().heightIn(min = 80.dp, max = 160.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
                             ) {
                                 items(uiState.users) { user ->
                                     UserCard(
                                         modifier = Modifier,
-                                        data = user
+                                        data = user,
+                                        onUserClick = { clickedUser ->
+                                            onEvent(ChannelListScreenEvent.OnClickSearchedUser(clickedUser))
+                                        }
                                     )
                                 }
                             }
@@ -360,7 +365,7 @@ fun UserCard(
     val onBackgroundColor = if (luminance < 128) Color.White else Color.Black
 
     OutlinedCard(
-        modifier = modifier.padding(15.dp).height(80.dp).wrapContentWidth(),
+        modifier = modifier.padding(vertical = 8.dp).height(80.dp).wrapContentWidth(),
         onClick = {
             onUserClick.invoke(data)
         }

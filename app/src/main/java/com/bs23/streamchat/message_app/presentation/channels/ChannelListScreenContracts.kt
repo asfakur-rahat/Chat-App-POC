@@ -22,5 +22,6 @@ sealed interface ChannelListScreenEvent {
     data object OnClickCreateNewChannel : ChannelListScreenEvent
     data class OnQueryChange(val newQuery: String) : ChannelListScreenEvent
     data class OnSearch(val query: String) : ChannelListScreenEvent
+    data class OnClickSearchedUser(val user: User) : ChannelListScreenEvent
     data object OnClickLogout : ChannelListScreenEvent
 }
