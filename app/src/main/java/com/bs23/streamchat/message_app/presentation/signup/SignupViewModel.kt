@@ -93,9 +93,9 @@ class SignupViewModel(
                                         result.onSuccess { data ->
                                             _uiState = _uiState.copy(
                                                 userID = data.user.id,
-                                                signUpSuccessful = true,
                                             )
                                             setState(BaseUiState.Data(_uiState))
+                                            setEffect(SignupScreenEffect.NavigateToChannelScreen(_uiState.userID))
                                         }.onError {
                                             setState(
                                                 BaseUiState.Error(

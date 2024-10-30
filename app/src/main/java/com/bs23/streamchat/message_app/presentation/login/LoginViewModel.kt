@@ -79,6 +79,9 @@ class LoginViewModel(
      */
     @Suppress("UNUSED", "")
     private fun loginAsUserTest() = safeLaunch {
+        /**
+         * Use This When login As USER User2
+         */
         client.connectUser(
             user = User(name = "User2", id = "User2"),
             token = BuildConfig.TOKEN_USER_2
@@ -100,6 +103,31 @@ class LoginViewModel(
                 setState(BaseUiState.Error(Throwable(message = _uiState.errorMessage)))
             }
         }
+
+        /**
+         * Use This When login As USER ARRAHAT
+         */
+//        client.connectUser(
+//            user = User(name = "ARRAHAT", id = "ARRAHAT"),
+//            token = BuildConfig.TOKEN
+//        ).enqueue { result ->
+//            if (result.isSuccess) {
+//                _uiState = _uiState.copy(
+//                    userName = "ARRAHAT",
+//                    isLoading = false,
+//                    isLoggedIn = true
+//                )
+//                setState(BaseUiState.Data(_uiState))
+//                setEffect(LoginScreenEffect.NavigateToChannelScreen(_uiState.userName))
+//            } else {
+//                _uiState = _uiState.copy(
+//                    isLoading = false,
+//                    isError = true,
+//                    errorMessage = result.errorOrNull()?.message ?: "Unknown error"
+//                )
+//                setState(BaseUiState.Error(Throwable(message = _uiState.errorMessage)))
+//            }
+//        }
     }
 
     @Suppress("UNUSED", "")

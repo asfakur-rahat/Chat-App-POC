@@ -66,7 +66,6 @@ import com.bs23.streamchat.core.presentation.base.BaseUiState
 import com.bs23.streamchat.core.presentation.components.EmptyScreen
 import com.bs23.streamchat.core.presentation.components.ErrorScreen
 import com.bs23.streamchat.core.presentation.components.LoadingScreen
-import com.bs23.streamchat.core.presentation.components.ObserveAsEvents
 import com.bs23.streamchat.core.presentation.util.cast
 import io.getstream.chat.android.compose.ui.channels.ChannelsScreen
 import io.getstream.chat.android.compose.ui.components.SearchInput
@@ -255,6 +254,8 @@ fun ChannelListScreenContent(
                                 )
                             }
                         }
+                        //HorizontalDivider(modifier = Modifier.padding(horizontal = 15.dp))
+                        //HorizontalDivider(modifier = Modifier.padding(horizontal = 15.dp))
                         Spacer(Modifier.height(4.dp))
                         SearchInput(
                             modifier = Modifier
@@ -291,26 +292,35 @@ fun ChannelListScreenContent(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                         ) {
-                            LazyHorizontalGrid(
-                                rows = GridCells.Fixed(2),
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .heightIn(min = 80.dp, max = 160.dp),
-                                contentPadding = PaddingValues(horizontal = 8.dp)
-                            ) {
-                                items(uiState.users) { user ->
-                                    UserCard(
-                                        modifier = Modifier,
-                                        data = user,
-                                        onUserClick = { clickedUser ->
-                                            onEvent(
-                                                ChannelListScreenEvent.OnClickSearchedUser(
-                                                    clickedUser
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = "Search Results")
+                                Spacer(Modifier.height(4.dp))
+                                HorizontalDivider()
+                                Spacer(Modifier.height(1.dp))
+                                HorizontalDivider()
+                                LazyHorizontalGrid(
+                                    rows = GridCells.Fixed(2),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .heightIn(min = 80.dp, max = 160.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp)
+                                ) {
+                                    items(uiState.users) { user ->
+                                        UserCard(
+                                            modifier = Modifier,
+                                            data = user,
+                                            onUserClick = { clickedUser ->
+                                                onEvent(
+                                                    ChannelListScreenEvent.OnClickSearchedUser(
+                                                        clickedUser
+                                                    )
                                                 )
-                                            )
-                                        }
-                                    )
+                                            }
+                                        )
+                                    }
                                 }
+                                HorizontalDivider()
                             }
                         }
 
@@ -550,7 +560,7 @@ private fun ShouldShowUserInformation(
                         onStartConversation.invoke()
                     },
                     shape = RoundedCornerShape(25)
-                ){
+                ) {
                     Text(text = "Say Hi \uD83D\uDC4B")
                 }
             }
