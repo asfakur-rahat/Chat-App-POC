@@ -1,5 +1,6 @@
 package com.bs23.streamchat.message_app.presentation.channels
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,13 +10,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
@@ -23,13 +31,13 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,11 +67,14 @@ import com.bs23.streamchat.core.presentation.components.ErrorScreen
 import com.bs23.streamchat.core.presentation.components.LoadingScreen
 import com.bs23.streamchat.core.presentation.util.cast
 import io.getstream.chat.android.compose.ui.channels.ChannelsScreen
+import io.getstream.chat.android.compose.ui.components.SearchInput
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
 import io.getstream.chat.android.compose.ui.theme.StreamColors
 import io.getstream.chat.android.compose.ui.theme.StreamShapes
+import io.getstream.chat.android.models.User
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import kotlin.random.Random
 
 @Composable
 fun ChannelListScreen(
@@ -112,7 +124,6 @@ fun ChannelListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChannelListScreenContent(
     uiState: ChannelListScreenUiState,
@@ -123,6 +134,10 @@ fun ChannelListScreenContent(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    var searchState by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(uiState.isLoggedIn) {
         if (!uiState.isLoggedIn) {
@@ -188,7 +203,8 @@ fun ChannelListScreenContent(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddings),
+                        .padding(paddings)
+                        .imePadding(),
                     contentAlignment = Alignment.Center
                 ) {
                     Column {
@@ -254,24 +270,55 @@ fun ChannelListScreenContent(
                                 )
                             }
                         }
-                        Box(
+                        Spacer(Modifier.height(4.dp))
+                        SearchInput(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .height(42.dp)
+                                .padding(horizontal = 15.dp),
+                            query = uiState.query,
+                            onValueChange = {
+                                onEvent(ChannelListScreenEvent.OnQueryChange(it))
+                                onEvent(ChannelListScreenEvent.OnSearch(it))
+                                if (it.isEmpty()) {
+                                    searchState = false
+                                } else {
+                                    if (!searchState) {
+                                        searchState = true
+                                    }
+                                }
+                            },
+                            label = {
+                                Text(
+                                    text = "Search for other users",
+                                    style = ChatTheme.typography.body.copy(
+                                        color = ChatTheme.colors.textLowEmphasis
+                                    )
+                                )
+                            },
+                            onSearchStarted = {
+                                searchState = true
+                            }
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        AnimatedVisibility(
+                            visible = uiState.users.isNotEmpty() && searchState,
+                            modifier = Modifier
                                 .wrapContentHeight()
-                                .clip(RoundedCornerShape(50))
+                                .wrapContentWidth()
                         ) {
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 20.dp)
-                                    .height(48.dp),
-                                value = "",
-                                onValueChange = {
-
-                                },
-                                shape = RoundedCornerShape(50)
-                            )
+                            LazyHorizontalGrid(
+                                rows = GridCells.Fixed(2),
+                                modifier = Modifier.wrapContentHeight().heightIn(min = 100.dp, max = 200.dp)
+                            ) {
+                                items(uiState.users) { user ->
+                                    UserCard(
+                                        modifier = Modifier,
+                                        data = user
+                                    )
+                                }
+                            }
                         }
+
                         ChannelsScreen(
                             onBackPressed = { onDismiss.invoke(false) },
                             isShowingHeader = false,
@@ -280,6 +327,7 @@ fun ChannelListScreenContent(
                                 onNavigate.invoke(it.cid, it.name)
                             }
                         )
+
                     }
                     if (uiState.showDialog) {
                         ChannelDialog(dismiss = {
@@ -292,6 +340,56 @@ fun ChannelListScreenContent(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun UserCard(
+    modifier: Modifier,
+    data: User,
+    onUserClick: (User) -> Unit = {},
+) {
+
+    val red = Random.nextInt(100, 256)
+    val blue = Random.nextInt(100, 256)
+    val green = Random.nextInt(100, 256)
+
+    val luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+    val backgroundColor = Color(red, green, blue)
+    val onBackgroundColor = if (luminance < 128) Color.White else Color.Black
+
+    OutlinedCard(
+        modifier = modifier.padding(15.dp).height(80.dp).wrapContentWidth(),
+        onClick = {
+            onUserClick.invoke(data)
+        }
+    ){
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxHeight()
+                .wrapContentWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(ChatTheme.shapes.avatar)
+                    .background(
+                        backgroundColor
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = data.name.take(2).uppercase(),
+                    color = onBackgroundColor,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Text(text = data.name)
         }
     }
 }

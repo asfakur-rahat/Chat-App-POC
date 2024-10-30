@@ -20,7 +20,7 @@ class LoginViewModel(
     override fun onTriggerEvent(eventType: LoginScreenEvent) {
         when (eventType) {
             LoginScreenEvent.LoginAsGuestClicked -> loginAsGuest()
-            LoginScreenEvent.LoginButtonClicked -> loginAsUser()
+            LoginScreenEvent.LoginButtonClicked -> loginAsUserTest() //loginAsUser()
             is LoginScreenEvent.UserNameChanged -> {
                 _uiState = _uiState.copy(
                     userName = eventType.userName
@@ -52,6 +52,33 @@ class LoginViewModel(
         }
     }
 
+    /**
+     * This function is only for development purpose
+     */
+    private fun loginAsUserTest() = safeLaunch {
+        client.connectUser(
+            user = User(name = "User2", id = "User2"),
+            token = BuildConfig.TOKEN_USER_2
+        ).enqueue { result ->
+            if (result.isSuccess) {
+                _uiState = _uiState.copy(
+                    userName = "User2",
+                    isLoading = false,
+                    isLoggedIn = true
+                )
+                setState(BaseUiState.Data(_uiState))
+            } else {
+                _uiState = _uiState.copy(
+                    isLoading = false,
+                    isError = true,
+                    errorMessage = result.errorOrNull()?.message ?: "Unknown error"
+                )
+                setState(BaseUiState.Error(Throwable(message = _uiState.errorMessage)))
+            }
+        }
+    }
+
+    @Suppress("UNUSED", "")
     private fun loginAsUser() = safeLaunch {
         client.connectUser(
             user = User(name = _uiState.userName, id = _uiState.userName),

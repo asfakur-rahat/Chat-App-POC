@@ -1,11 +1,17 @@
 package com.bs23.streamchat.message_app.presentation.channels
 
+import androidx.lifecycle.viewModelScope
 import com.bs23.streamchat.core.presentation.base.BaseUiState
 import com.bs23.streamchat.core.presentation.base.MVIViewModel
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.api.models.QueryChannelsRequest
+import io.getstream.chat.android.client.api.models.QueryUsersRequest
 import io.getstream.chat.android.models.Filters
 import io.getstream.chat.android.models.querysort.QuerySortByField
+import io.getstream.result.call.enqueue
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class ChannelViewModel(
@@ -29,7 +35,54 @@ class ChannelViewModel(
             ChannelListScreenEvent.DisMissDialog -> toogleDialog(false)
 
             ChannelListScreenEvent.OnClickLogout -> logOut()
+
+            is ChannelListScreenEvent.OnQueryChange -> onChangeSearchQuery(eventType.newQuery)
+
+            is ChannelListScreenEvent.OnSearch -> onSearch(query = eventType.query)
         }
+    }
+
+    private fun onChangeSearchQuery(newQuery: String){
+        _uiState = _uiState.copy(query = newQuery)
+        setState(BaseUiState.Data(_uiState))
+    }
+
+    private var searchJob: Job? = null
+    private fun onSearch(query: String) {
+
+        if(query.isBlank() || query.isEmpty()){
+            searchJob?.cancel()
+            _uiState = _uiState.copy(
+                users = emptyList()
+            )
+            setState(BaseUiState.Data(_uiState))
+            return
+        }
+        searchJob?.cancel()
+
+        searchJob = viewModelScope.launch {
+            delay(3000)
+            val request = QueryUsersRequest(
+                filter = Filters.and(
+                    Filters.autocomplete("name", query),
+                ),
+                offset = 0,
+                limit = 10
+            )
+            client.queryUsers(request)
+                .enqueue { result ->
+                    result.onSuccess { list ->
+                        println(list)
+                        _uiState = _uiState.copy(
+                            users = list
+                        )
+                        setState(BaseUiState.Data(_uiState))
+                    }.onError { error ->
+                        println(error)
+                    }
+                }
+        }
+
     }
 
     private fun setCurrentUsername(username: String){
