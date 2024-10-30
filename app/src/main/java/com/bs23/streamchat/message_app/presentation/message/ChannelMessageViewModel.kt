@@ -2,11 +2,12 @@ package com.bs23.streamchat.message_app.presentation.message
 
 import com.bs23.streamchat.core.presentation.base.BaseUiState
 import com.bs23.streamchat.core.presentation.base.MVIViewModel
+import com.bs23.streamchat.message_app.presentation.channels.ChannelListScreenEffect
 import io.getstream.chat.android.client.ChatClient
 
 class ChannelMessageViewModel(
     private val client: ChatClient
-): MVIViewModel<BaseUiState<ChannelMessageUiState>, ChannelMessageScreenEvent>() {
+): MVIViewModel<BaseUiState<ChannelMessageUiState>, ChannelMessageScreenEvent, ChannelListScreenEffect>() {
 
     private var _uiState = ChannelMessageUiState()
 

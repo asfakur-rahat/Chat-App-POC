@@ -7,8 +7,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.bs23.streamchat.core.presentation.components.ObserveAsEvents
 import com.bs23.streamchat.message_app.presentation.channels.ChannelListScreen
+import com.bs23.streamchat.message_app.presentation.channels.ChannelListScreenEffect
+import com.bs23.streamchat.message_app.presentation.channels.ChannelViewModel
 import com.bs23.streamchat.message_app.presentation.login.LoginScreen
+import com.bs23.streamchat.message_app.presentation.login.LoginScreenEffect
 import com.bs23.streamchat.message_app.presentation.login.LoginViewModel
 import com.bs23.streamchat.message_app.presentation.message.ChannelMessageScreen
 import com.bs23.streamchat.message_app.presentation.signup.SignUpScreen
@@ -58,32 +62,46 @@ fun AppNavigation(
         composable<Login> {
             val viewModel: LoginViewModel = koinViewModel()
             viewModel.initUiState()
-            LoginScreen(viewModel) {
-                navController.navigate(Channel(it))
+            ObserveAsEvents(viewModel.effect) { event ->
+                when(event){
+                    is LoginScreenEffect.NavigateToChannelScreen -> {
+                        navController.navigate(Channel(event.userName)) {
+                            popUpTo<Login> {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
             }
+            LoginScreen(viewModel)
         }
         composable<Channel> {
             val channel = it.toRoute<Channel>()
             val activity = LocalContext.current as Activity
-            ChannelListScreen(
-                userId = channel.userId,
-                onChannelClick = { channelId, channelName ->
-                    navController.navigate(
-                        Message(
-                            channelId = channelId,
-                            channelName = channelName
+            val viewModel: ChannelViewModel = koinViewModel()
+            ObserveAsEvents(events = viewModel.effect) { effect ->
+                when (effect) {
+                    is ChannelListScreenEffect.NavigateToChannel -> {
+                        navController.navigate(
+                            Message(
+                                channelId = effect.channelId,
+                                channelName = effect.channelName
+                            )
                         )
-                    )
-                },
-                onDismiss = {
-                    activity.finish()
-                },
-                onLogout = {
-                    navController.navigate(SignUp) {
-                        popUpTo<Channel> {
-                            inclusive = true
+                    }
+                    ChannelListScreenEffect.OnLogOut -> {
+                        navController.navigate(SignUp) {
+                            popUpTo<Channel> {
+                                inclusive = true
+                            }
                         }
                     }
+                }
+            }
+            ChannelListScreen(
+                userId = channel.userId,
+                backPress = {
+                    activity.finish()
                 }
             )
         }

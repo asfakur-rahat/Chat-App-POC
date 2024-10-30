@@ -66,6 +66,7 @@ import com.bs23.streamchat.core.presentation.base.BaseUiState
 import com.bs23.streamchat.core.presentation.components.EmptyScreen
 import com.bs23.streamchat.core.presentation.components.ErrorScreen
 import com.bs23.streamchat.core.presentation.components.LoadingScreen
+import com.bs23.streamchat.core.presentation.components.ObserveAsEvents
 import com.bs23.streamchat.core.presentation.util.cast
 import io.getstream.chat.android.compose.ui.channels.ChannelsScreen
 import io.getstream.chat.android.compose.ui.components.SearchInput
@@ -79,12 +80,10 @@ import kotlin.random.Random
 
 @Composable
 fun ChannelListScreen(
-    onChannelClick: (String, String) -> Unit,
-    onDismiss: () -> Unit,
-    onLogout: () -> Unit,
+    viewModel: ChannelViewModel = koinViewModel(),
+    backPress: () -> Unit,
     userId: String,
 ) {
-    val viewModel: ChannelViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -97,15 +96,7 @@ fun ChannelListScreen(
             ChannelListScreenContent(
                 uiState = data,
                 onEvent = viewModel::onTriggerEvent,
-                onNavigate = onChannelClick,
-                onDismiss = {
-                    if (it) {
-                        //viewModel.onTriggerEvent(ChannelListScreenEvent.OnClickLogout)
-                        onLogout.invoke()
-                    } else {
-                        onDismiss.invoke()
-                    }
-                },
+                backPress = backPress,
                 userId = userId
             )
         }
@@ -129,8 +120,7 @@ fun ChannelListScreen(
 fun ChannelListScreenContent(
     uiState: ChannelListScreenUiState,
     onEvent: (ChannelListScreenEvent) -> Unit,
-    onNavigate: (String, String) -> Unit,
-    onDismiss: (Boolean) -> Unit,
+    backPress: () -> Unit,
     userId: String,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -138,12 +128,6 @@ fun ChannelListScreenContent(
 
     var searchState by rememberSaveable {
         mutableStateOf(false)
-    }
-
-    LaunchedEffect(uiState.isLoggedIn) {
-        if (!uiState.isLoggedIn) {
-            onDismiss.invoke(true)
-        }
     }
 
     ModalNavigationDrawer(
@@ -309,7 +293,9 @@ fun ChannelListScreenContent(
                         ) {
                             LazyHorizontalGrid(
                                 rows = GridCells.Fixed(2),
-                                modifier = Modifier.wrapContentHeight().heightIn(min = 80.dp, max = 160.dp),
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .heightIn(min = 80.dp, max = 160.dp),
                                 contentPadding = PaddingValues(horizontal = 8.dp)
                             ) {
                                 items(uiState.users) { user ->
@@ -317,7 +303,11 @@ fun ChannelListScreenContent(
                                         modifier = Modifier,
                                         data = user,
                                         onUserClick = { clickedUser ->
-                                            onEvent(ChannelListScreenEvent.OnClickSearchedUser(clickedUser))
+                                            onEvent(
+                                                ChannelListScreenEvent.OnClickSearchedUser(
+                                                    clickedUser
+                                                )
+                                            )
                                         }
                                     )
                                 }
@@ -325,11 +315,10 @@ fun ChannelListScreenContent(
                         }
 
                         ChannelsScreen(
-                            onBackPressed = { onDismiss.invoke(false) },
+                            onBackPressed = { backPress.invoke() },
                             isShowingHeader = false,
                             onChannelClick = {
-                                //println(it)
-                                onNavigate.invoke(it.cid, it.name)
+                                onEvent(ChannelListScreenEvent.NavigateToChannel(it.cid, it.name))
                             }
                         )
 
@@ -342,6 +331,17 @@ fun ChannelListScreenContent(
                                 onEvent(ChannelListScreenEvent.OnCreateNewChannel(it))
                             }
                         })
+                    }
+                    uiState.shouldShowUserInformation?.let {
+                        ShouldShowUserInformation(
+                            user = uiState.shouldShowUserInformation,
+                            onStartConversation = {
+                                onEvent(ChannelListScreenEvent.StartConversation(it))
+                            },
+                            dismiss = {
+                                onEvent(ChannelListScreenEvent.StopShowingUserInformation)
+                            }
+                        )
                     }
                 }
             }
@@ -365,11 +365,14 @@ fun UserCard(
     val onBackgroundColor = if (luminance < 128) Color.White else Color.Black
 
     OutlinedCard(
-        modifier = modifier.padding(vertical = 8.dp).height(80.dp).wrapContentWidth(),
+        modifier = modifier
+            .padding(vertical = 8.dp)
+            .height(80.dp)
+            .wrapContentWidth(),
         onClick = {
             onUserClick.invoke(data)
         }
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .padding(8.dp)
@@ -470,5 +473,117 @@ private fun ChannelDialog(dismiss: (String?) -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ShouldShowUserInformation(
+    user: User,
+    onStartConversation: () -> Unit,
+    dismiss: () -> Unit,
+) {
+    Dialog(
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false,
+        ),
+        onDismissRequest = {}
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(10)
+                )
+                .clip(RoundedCornerShape(10))
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier
+                    .padding(top = 15.dp, end = 15.dp)
+                    .size(24.dp)
+                    .align(Alignment.TopEnd)
+                    .clickable {
+                        dismiss.invoke()
+                    },
+                imageVector = Icons.Default.Close,
+                contentDescription = "Close",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+                    .padding(top = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                UserAvatar(user)
+                Spacer(Modifier.height(8.dp))
+                Text(text = "User Information")
+                HorizontalDivider(Modifier.padding(horizontal = 50.dp))
+                Spacer(Modifier.height(0.5.dp))
+                HorizontalDivider(Modifier.padding(horizontal = 50.dp))
+                Spacer(Modifier.height(20.dp))
+                Text(text = "Name: ${user.name}")
+                Spacer(Modifier.height(8.dp))
+                Text(text = "Role: ${user.role}")
+                Spacer(Modifier.height(8.dp))
+                Row {
+                    Text(text = "Active: ")
+                    Text(
+                        text = "⬤",
+                        fontSize = 18.sp,
+                        lineHeight = 18.sp,
+                        color = if (user.online)
+                            Color.Green
+                        else
+                            Color.LightGray
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        onStartConversation.invoke()
+                    },
+                    shape = RoundedCornerShape(25)
+                ){
+                    Text(text = "Say Hi \uD83D\uDC4B")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserAvatar(
+    user: User,
+) {
+    val red = Random.nextInt(100, 256)
+    val blue = Random.nextInt(100, 256)
+    val green = Random.nextInt(100, 256)
+
+    val luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+    val backgroundColor = Color(red, green, blue)
+    val onBackgroundColor = if (luminance < 128) Color.White else Color.Black
+
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(ChatTheme.shapes.avatar)
+            .background(
+                backgroundColor
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = user.name.take(2).uppercase(),
+            color = onBackgroundColor,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
+        )
     }
 }

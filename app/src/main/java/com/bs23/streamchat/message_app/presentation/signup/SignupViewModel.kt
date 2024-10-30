@@ -15,7 +15,7 @@ private val USER_REGEX = Regex("^[a-zA-Z0-9_@]{3,}\$")
 class SignupViewModel(
     private val dataSource: ChatAppDataSource,
     private val client: ChatClient,
-) : MVIViewModel<BaseUiState<SignupScreenUiState>, SignupScreenEvent>() {
+) : MVIViewModel<BaseUiState<SignupScreenUiState>, SignupScreenEvent, SignupScreenEffect>() {
 
     private var _uiState = SignupScreenUiState()
 

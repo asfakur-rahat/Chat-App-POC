@@ -1,27 +1,17 @@
 package com.bs23.streamchat.message_app.presentation.message
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -78,6 +68,7 @@ fun ChannelMessageScreen(
     }
 }
 
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun ChannelMessageContent(
     uiState: ChannelMessageUiState,
@@ -131,32 +122,8 @@ fun ChannelMessageContent(
                         channelId = channelId,
                     ),
                     onBackPressed = {
+                        //println("onBackPress invoked")
                         goBack.invoke()
-                    },
-                    topBarContent = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .clip(ChatTheme.shapes.header)
-                                .background(ChatTheme.colors.barsBackground)
-                                .padding(vertical = 5.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            IconButton(
-                                modifier = Modifier
-                                    .align(Alignment.CenterStart),
-                                onClick = {
-                                    it.invoke()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "BACK"
-                                )
-                            }
-                            Text(text = channelName)
-                        }
                     }
                 )
             }

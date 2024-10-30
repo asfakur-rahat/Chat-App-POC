@@ -3,9 +3,7 @@ package com.bs23.streamchat.message_app.presentation.login
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,17 +17,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,8 +38,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = koinViewModel(),
-    goChannelScreen: (String) -> Unit,
+    viewModel: LoginViewModel = koinViewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,9 +50,6 @@ fun LoginScreen(
                 onEvent = {
                     viewModel.onTriggerEvent(it)
                 },
-                onNavigate = {
-                    goChannelScreen(it)
-                }
             )
         }
         BaseUiState.Empty -> {
@@ -76,14 +68,13 @@ fun LoginScreen(
 @Composable
 fun LoginScreenContent(
     uiState: LoginScreenUiState,
-    onEvent: (LoginScreenEvent) -> Unit,
-    onNavigate: (String) -> Unit
+    onEvent: (LoginScreenEvent) -> Unit
 ){
-    LaunchedEffect(uiState.isLoggedIn) {
-        if(uiState.isLoggedIn){
-            onNavigate(uiState.userName)
-        }
-    }
+//    LaunchedEffect(uiState.isLoggedIn) {
+//        if(uiState.isLoggedIn){
+//            onNavigate(uiState.userName)
+//        }
+//    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -119,6 +110,48 @@ fun LoginScreenContent(
                         Text(text = "Enter Username")
                     },
                     keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                    )
+                )
+
+                OutlinedTextField(
+                    value = uiState.email,
+                    onValueChange = {
+                        onEvent(LoginScreenEvent.EmailChanged(it))
+                    },
+                    label = {
+                        Text(text = "Email")
+                    },
+                    placeholder = {
+                        Text(text = "Enter Email")
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                    )
+                )
+
+                OutlinedTextField(
+                    value = uiState.password,
+                    onValueChange = {
+                        onEvent(LoginScreenEvent.PasswordChanged(it))
+                    },
+                    label = {
+                        Text(text = "Password")
+                    },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
                     colors = TextFieldDefaults.colors(
@@ -126,12 +159,10 @@ fun LoginScreenContent(
                         unfocusedContainerColor = Color.Transparent,
                         errorContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-//                        focusedIndicatorColor = Color.Transparent,
-//                        unfocusedIndicatorColor = Color.Transparent,
-//                        errorIndicatorColor = Color.Transparent,
-//                        disabledIndicatorColor = Color.Transparent,
                     )
                 )
+
+
                 Button(
                     onClick = {
                         onEvent(LoginScreenEvent.LoginButtonClicked)

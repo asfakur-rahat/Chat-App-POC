@@ -16,7 +16,7 @@ import java.util.UUID
 
 class ChannelViewModel(
     private val client: ChatClient,
-): MVIViewModel<BaseUiState<ChannelListScreenUiState>, ChannelListScreenEvent>() {
+): MVIViewModel<BaseUiState<ChannelListScreenUiState>, ChannelListScreenEvent, ChannelListScreenEffect>() {
 
     private var _uiState = ChannelListScreenUiState()
 
@@ -41,6 +41,24 @@ class ChannelViewModel(
             is ChannelListScreenEvent.OnSearch -> onSearch(query = eventType.query)
 
             is ChannelListScreenEvent.OnClickSearchedUser -> queryChannel(eventType.user)
+
+            is ChannelListScreenEvent.StartConversation -> startConversation(eventType.user)
+
+            ChannelListScreenEvent.StopShowingUserInformation -> stopShowingUserInformation()
+
+            is ChannelListScreenEvent.NavigateToChannel -> navigateToChannel(eventType.channelId, eventType.channelName)
+        }
+    }
+
+    private fun navigateToChannel(channelId: String, channelName: String){
+        _uiState = _uiState.copy(
+            query = "",
+            users = emptyList(),
+            shouldShowUserInformation = null
+        )
+        viewModelScope.launch {
+            setState(BaseUiState.Data(_uiState))
+            setEffect(ChannelListScreenEffect.NavigateToChannel(channelId, channelName))
         }
     }
 
@@ -99,12 +117,11 @@ class ChannelViewModel(
 
     private fun logOut(){
         client.disconnect(false).enqueue()
-        _uiState = _uiState.copy(isLoggedIn = false)
-        setState(BaseUiState.Data(_uiState))
+        setEffect(ChannelListScreenEffect.OnLogOut)
     }
 
     @Suppress("UNUSED")
-    private fun queryChannel(user: User){
+    private fun queryChannel(user: User) {
         client.getCurrentUser()?.let{ currentUser ->
             val request = QueryChannelsRequest(
                 filter = Filters.and(
@@ -123,15 +140,45 @@ class ChannelViewModel(
             client.queryChannels(request).enqueue { result ->
                 result.onSuccess {
                     if(it.isNotEmpty()){
-
+                        val channel = it.first()
+                        navigateToChannel(channel.cid, channel.name)
                     }else{
-
+                        _uiState = _uiState.copy(
+                            shouldShowUserInformation = user
+                        )
+                        setState(BaseUiState.Data(_uiState))
                     }
                 }.onError {
                     println(it.message)
                 }
             }
         }
+    }
+
+    private fun startConversation(user: User) = safeLaunch {
+        _uiState = _uiState.copy(
+            shouldShowUserInformation = null
+        )
+        client.getCurrentUser()?.id?.let{
+            client.channel(channelType = "messaging", channelId = "").create(
+                memberIds = listOf(it, user.id),
+                extraData = mapOf()
+            ).enqueue { result ->
+                result.onSuccess { channel ->
+                   viewModelScope.launch {
+                       setState(BaseUiState.Data(_uiState))
+                      setEffect(ChannelListScreenEffect.NavigateToChannel(channel.cid, channel.name))
+                   }
+                }.onError { error ->
+                    println(error.message)
+                    setState(BaseUiState.Error(Throwable(error.message)))
+                }
+            }
+        }
+    }
+    private fun stopShowingUserInformation(){
+        _uiState = _uiState.copy(shouldShowUserInformation = null)
+        setState(BaseUiState.Data(_uiState))
     }
 
     private fun createNewChannel(name: String) = safeLaunch {

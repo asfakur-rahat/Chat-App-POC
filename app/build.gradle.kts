@@ -25,7 +25,7 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "API_KEY", "\"bmtr69fjtjma\"")
-            buildConfigField("String", "BASE_URL", "\"http://172.16.208.146:8000/api/user/\"")
+            buildConfigField("String", "BASE_URL", "\"http://172.16.208.143:8000/api/user/\"")
             buildConfigField("String", "TOKEN", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiQVJSQUhBVCJ9.ulAWns1QM8neDHh7fJmP1VxL7WAYEFPJTb1EX7JpAjw\"")
             buildConfigField("String", "TOKEN_USER_2", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiVXNlcjIifQ.hYGDEspYb40Oeq_OngzaV3LujUZs9DVVzrQUxwSRemg\"")
         }

@@ -22,3 +22,7 @@ sealed interface SignupScreenEvent {
     data class OnPasswordChanged(val password: String): SignupScreenEvent
     data class OnConfirmPasswordChanged(val confirmPassword: String): SignupScreenEvent
 }
+
+sealed interface SignupScreenEffect {
+
+}

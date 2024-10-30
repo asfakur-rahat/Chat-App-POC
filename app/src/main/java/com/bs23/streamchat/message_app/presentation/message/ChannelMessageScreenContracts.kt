@@ -7,3 +7,7 @@ data class ChannelMessageUiState(
 sealed interface ChannelMessageScreenEvent {
     data class SetChannelId(val channelId: String) : ChannelMessageScreenEvent
 }
+
+sealed interface ChannelMessageScreenEffect {
+
+}
