@@ -9,64 +9,23 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bs23.streamchat.core.presentation.base.BaseUiState
-import com.bs23.streamchat.core.presentation.components.EmptyScreen
-import com.bs23.streamchat.core.presentation.components.ErrorScreen
-import com.bs23.streamchat.core.presentation.components.LoadingScreen
-import com.bs23.streamchat.core.presentation.util.cast
-import org.koin.androidx.compose.koinViewModel
-import kotlin.math.sin
-
-@Composable
-fun LoginScreen(
-    viewModel: LoginViewModel = koinViewModel()
-) {
-
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    when(uiState){
-        is BaseUiState.Data -> {
-            val data = uiState.cast<BaseUiState.Data<LoginScreenUiState>>().data
-            LoginScreenContent(
-                uiState = data,
-                onEvent = {
-                    viewModel.onTriggerEvent(it)
-                },
-            )
-        }
-        BaseUiState.Empty -> {
-            EmptyScreen(Modifier)
-        }
-        is BaseUiState.Error -> {
-            val error = uiState.cast<BaseUiState.Error>().error
-            ErrorScreen(Modifier, error)
-        }
-        BaseUiState.Loading -> {
-            LoadingScreen(Modifier)
-        }
-    }
-}
+import com.bs23.streamchat.core.presentation.components.AppTextField
 
 @Composable
 fun LoginScreenContent(
@@ -97,76 +56,28 @@ fun LoginScreenContent(
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold
                 ))
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    value = uiState.userName,
-                    onValueChange = {
-                        onEvent(LoginScreenEvent.UserNameChanged(it))
-                    },
-                    label = {
-                        Text(text = "Username")
-                    },
-                    placeholder = {
-                        Text(text = "Enter Username")
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    ),
-                    singleLine = true
-                )
 
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    value = uiState.email,
+                AppTextField(
+                    state = uiState.email,
+                    label = "Email Address",
+                    placeholder = "Enter Email Address",
+                    keyboardType = KeyboardType.Email,
+                    singleLine = true,
                     onValueChange = {
                         onEvent(LoginScreenEvent.EmailChanged(it))
-                    },
-                    label = {
-                        Text(text = "Email")
-                    },
-                    placeholder = {
-                        Text(text = "Enter Email")
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    ),
-                    singleLine = true
+                    }
                 )
 
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    value = uiState.password,
+                AppTextField(
+                    state = uiState.password,
+                    label = "Password",
+                    placeholder = "Enter Password",
+                    singleLine = true,
+                    imeAction = ImeAction.Done,
                     onValueChange = {
                         onEvent(LoginScreenEvent.PasswordChanged(it))
-                    },
-                    label = {
-                        Text(text = "Password")
-                    },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    ),
-                    singleLine = true
+                    }
                 )
-
 
                 Button(
                     onClick = {

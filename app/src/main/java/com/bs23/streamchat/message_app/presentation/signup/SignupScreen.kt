@@ -19,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,42 +27,35 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bs23.streamchat.core.presentation.base.BaseUiState
 import com.bs23.streamchat.core.presentation.components.AppTextField
-import com.bs23.streamchat.core.presentation.components.EmptyScreen
-import com.bs23.streamchat.core.presentation.components.ErrorScreen
-import com.bs23.streamchat.core.presentation.components.LoadingScreen
-import com.bs23.streamchat.core.presentation.util.cast
-import org.koin.androidx.compose.koinViewModel
 
-@Composable
-fun SignUpScreen(
-    viewModel: SignupViewModel = koinViewModel(),
-    gotoLogIn: () -> Unit
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    when(uiState){
-        is BaseUiState.Data -> {
-            val data = uiState.cast<BaseUiState.Data<SignupScreenUiState>>().data
-            SignUpScreenContent(
-                uiState = data,
-                onEvent = viewModel::onTriggerEvent,
-                gotoLogIn = gotoLogIn
-            )
-        }
-        BaseUiState.Empty -> {
-            EmptyScreen(Modifier)
-        }
-        is BaseUiState.Error -> {
-            val error = uiState.cast<BaseUiState.Error>().error
-            ErrorScreen(Modifier, error)
-        }
-        BaseUiState.Loading -> {
-            LoadingScreen(Modifier)
-        }
-    }
-}
+//@Composable
+//fun SignUpScreen(
+//    viewModel: SignupViewModel = koinViewModel(),
+//    gotoLogIn: () -> Unit
+//) {
+//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+//    when(uiState){
+//        is BaseUiState.Data -> {
+//            val data = uiState.cast<BaseUiState.Data<SignupScreenUiState>>().data
+//            SignUpScreenContent(
+//                uiState = data,
+//                onEvent = viewModel::onTriggerEvent,
+//                gotoLogIn = gotoLogIn
+//            )
+//        }
+//        BaseUiState.Empty -> {
+//            EmptyScreen(Modifier)
+//        }
+//        is BaseUiState.Error -> {
+//            val error = uiState.cast<BaseUiState.Error>().error
+//            ErrorScreen(Modifier, error)
+//        }
+//        BaseUiState.Loading -> {
+//            LoadingScreen(Modifier)
+//        }
+//    }
+//}
 
 @Composable
 fun SignUpScreenContent(
