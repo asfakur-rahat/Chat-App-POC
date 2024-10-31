@@ -135,8 +135,8 @@ class LoginViewModel(
         dataSource.signInAndGetToken(_uiState.email, _uiState.password)
             .onSuccess { response ->
                 client.connectUser(
-                    User(id = _uiState.userName, name = _uiState.userName),
-                    token = response
+                    User(id = response.userId, name = response.userId),
+                    token = response.token
                 ).enqueue { result ->
                     result.onSuccess { userData ->
                         _uiState = _uiState.copy(
@@ -144,6 +144,7 @@ class LoginViewModel(
                             userName = userData.user.id
                         )
                         setState(BaseUiState.Data(_uiState))
+                        setEffect(LoginScreenEffect.NavigateToChannelScreen(userName = userData.user.name))
                     }.onError { error ->
                         setState(BaseUiState.Error(Throwable(error.message)))
                     }

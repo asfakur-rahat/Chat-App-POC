@@ -87,7 +87,7 @@ class SignupViewModel(
                                             name = userName,
                                             role = "user"
                                         ),
-                                        token = it
+                                        token = it.token
                                     ).enqueue { result ->
                                         println("Result after connecting user" + result)
                                         result.onSuccess { data ->

@@ -9,8 +9,10 @@ import com.bs23.streamchat.message_app.data.dto.SignUpRequest
 import com.bs23.streamchat.message_app.data.dto.SignUpResponseDto
 import com.bs23.streamchat.message_app.data.dto.TokenDto
 import com.bs23.streamchat.message_app.data.dto.TokenRequest
+import com.bs23.streamchat.message_app.data.dto.toLoggedInUser
 import com.bs23.streamchat.message_app.data.dto.toUserSignUp
 import com.bs23.streamchat.message_app.domain.ChatAppDataSource
+import com.bs23.streamchat.message_app.domain.models.LoggedInUser
 import com.bs23.streamchat.message_app.domain.models.UserSignUp
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
@@ -46,7 +48,7 @@ class RemoteChatAppDataSource(
     override suspend fun signInAndGetToken(
         email: String,
         password: String
-    ): Result<String, NetworkError> {
+    ): Result<LoggedInUser, NetworkError> {
         return safeCall<TokenDto> {
             client.post(
                 urlString = constructUrl("/token/")
@@ -59,7 +61,7 @@ class RemoteChatAppDataSource(
                 )
             }
         }.map {
-            it.token
+            it.toLoggedInUser()
         }
     }
 }
