@@ -13,6 +13,31 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+
+/**
+ * An abstract ViewModel class providing base functionality for handling common UI events and background tasks.
+ *
+ * This [BaseViewModel] class encapsulates shared functionality that can be extended by other ViewModels.
+ * It includes:
+ *
+ * - A [showToast] method that emits messages to display as toasts.
+ * - A [safeLaunch] function for executing coroutines with error handling.
+ * - [fetchMultipleResource] to handle multiple asynchronous API calls and invoke a completion handler upon completion.
+ * - [safeLaunchIO] for launching coroutines on the IO dispatcher.
+ * - [call] for observing a flow and handling errors, optionally invoking a completion handler.
+ *
+ * @property _showToast A [MutableSharedFlow] for broadcasting toast messages to be observed.
+ * @property showToast A [Flow] that external classes observe to receive toast messages.
+ * @property handler A [CoroutineExceptionHandler] that catches exceptions and calls [handleError].
+ *
+ * @constructor Base constructor initializes the [CoroutineExceptionHandler] for error handling.
+ *
+ * @function handleError Override to provide specific error handling logic.
+ * @function startLoading Override to define loading logic, called before executing tasks.
+ *
+ * @param T The type of data to be collected by the flow in [call].
+ * @author Md Asfakur Rahat
+ */
 abstract class BaseViewModel : ViewModel() {
 
     private val _showToast = MutableSharedFlow<String>()

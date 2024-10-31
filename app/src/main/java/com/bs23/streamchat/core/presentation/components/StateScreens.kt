@@ -12,6 +12,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+/**
+ * A composable function displaying a loading screen with a centered [CircularProgressIndicator].
+ *
+ * This [LoadingScreen] function provides a full-screen loading overlay, using [MaterialTheme.colorScheme]
+ * for background and progress indicator colors.
+ *```kotlin
+ *   LoadingScreen(modifier = Modifier)
+ *```
+ *
+ * @param modifier A [Modifier] for adjusting the layout, passed externally to allow customization.
+ *
+ * @see Box
+ * @see CircularProgressIndicator
+ * @see MaterialTheme
+ *
+ * @author Md Asfakur Rahat
+ */
 @Composable
 fun LoadingScreen(modifier: Modifier) {
     Box(
@@ -21,6 +38,25 @@ fun LoadingScreen(modifier: Modifier) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.onBackground)
     }
 }
+
+/**
+ * A composable function that displays an error message centered on the screen.
+ *
+ * This [ErrorScreen] function provides a full-screen overlay with a semi-transparent
+ * error background, showing the provided error message in the center.
+ *
+ * ```kotlin
+ *   ErrorScreen(modifier = Modifier, error = Throwable("Network Error"))
+ *   ```
+ *
+ * @param modifier A [Modifier] to adjust layout, enabling external customization.
+ * @param error The [Throwable] whose message is displayed on the screen.
+ *
+ * @see Box
+ * @see Text
+ * @see MaterialTheme
+ * @author Md Asfakur Rahat
+ */
 
 @Composable
 fun ErrorScreen(modifier: Modifier, error: Throwable) {

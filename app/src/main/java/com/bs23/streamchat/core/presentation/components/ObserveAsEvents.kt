@@ -9,6 +9,29 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
+/**
+ * A composable function that observes a [Flow] of events and handles each event with the provided [onEvent] lambda.
+ *
+ * This [ObserveAsEvents] function starts collecting the [events] flow when the lifecycle is in the [Lifecycle.State.STARTED] state,
+ * ensuring the collection aligns with the composable's lifecycle.
+ *```kotlin
+ *   ObserveAsEvents(events = viewModel.effect) { event ->
+ *       // Handle event
+ *   }
+ *```
+ *
+ * @param events The [Flow] of events to observe and act upon.
+ * @param key1 Optional key to control recomposition, typically used for state.
+ * @param key2 Optional additional key to control recomposition.
+ * @param onEvent Lambda that handles each emitted event from [events].
+ *
+ * @see LaunchedEffect
+ * @see repeatOnLifecycle
+ * @see LocalLifecycleOwner
+ *
+ * @author Md Asfakur Rahat
+ */
+
 @Composable
 fun <T> ObserveAsEvents(
     events: Flow<T>,
