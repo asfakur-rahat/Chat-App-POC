@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +37,7 @@ import com.bs23.streamchat.core.presentation.components.ErrorScreen
 import com.bs23.streamchat.core.presentation.components.LoadingScreen
 import com.bs23.streamchat.core.presentation.util.cast
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.sin
 
 @Composable
 fun LoginScreen(
@@ -68,14 +71,9 @@ fun LoginScreen(
 @Composable
 fun LoginScreenContent(
     uiState: LoginScreenUiState,
-    onEvent: (LoginScreenEvent) -> Unit
+    onEvent: (LoginScreenEvent) -> Unit,
+    gotoSignUp: () -> Unit = {},
 ){
-//    LaunchedEffect(uiState.isLoggedIn) {
-//        if(uiState.isLoggedIn){
-//            onNavigate(uiState.userName)
-//        }
-//    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ){ paddings ->
@@ -84,6 +82,7 @@ fun LoginScreenContent(
             contentAlignment = Alignment.Center
         ) {
             Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 50.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             ){
@@ -99,6 +98,7 @@ fun LoginScreenContent(
                     fontWeight = FontWeight.Bold
                 ))
                 OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     value = uiState.userName,
                     onValueChange = {
                         onEvent(LoginScreenEvent.UserNameChanged(it))
@@ -117,10 +117,12 @@ fun LoginScreenContent(
                         unfocusedContainerColor = Color.Transparent,
                         errorContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-                    )
+                    ),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     value = uiState.email,
                     onValueChange = {
                         onEvent(LoginScreenEvent.EmailChanged(it))
@@ -139,10 +141,12 @@ fun LoginScreenContent(
                         unfocusedContainerColor = Color.Transparent,
                         errorContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-                    )
+                    ),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     value = uiState.password,
                     onValueChange = {
                         onEvent(LoginScreenEvent.PasswordChanged(it))
@@ -159,7 +163,8 @@ fun LoginScreenContent(
                         unfocusedContainerColor = Color.Transparent,
                         errorContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-                    )
+                    ),
+                    singleLine = true
                 )
 
 
@@ -178,6 +183,11 @@ fun LoginScreenContent(
                     shape = RoundedCornerShape(25)
                 ) {
                     Text(text = "Login As Guest")
+                }
+                TextButton(
+                    onClick = gotoSignUp
+                ) {
+                    Text(text = "Don't have an account? Sign Up")
                 }
             }
         }

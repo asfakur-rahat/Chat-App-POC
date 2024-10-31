@@ -9,31 +9,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bs23.streamchat.core.presentation.base.BaseUiState
+import com.bs23.streamchat.core.presentation.components.AppTextField
 import com.bs23.streamchat.core.presentation.components.EmptyScreen
 import com.bs23.streamchat.core.presentation.components.ErrorScreen
 import com.bs23.streamchat.core.presentation.components.LoadingScreen
@@ -74,12 +71,6 @@ fun SignUpScreenContent(
     onEvent: (SignupScreenEvent) -> Unit,
     gotoLogIn: () -> Unit
 ) {
-//    LaunchedEffect(uiState.signUpSuccessful) {
-//        if(uiState.signUpSuccessful) {
-//            onNavigate(uiState.userID)
-//        }
-//    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ){ paddings ->
@@ -92,6 +83,7 @@ fun SignUpScreenContent(
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 50.dp)
                     .verticalScroll(
                         rememberScrollState()
                     ),
@@ -109,107 +101,45 @@ fun SignUpScreenContent(
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold
                 ))
-
-                OutlinedTextField(
-                    value = uiState.userName,
+                AppTextField(
+                    state = uiState.userName,
                     onValueChange = {
                         onEvent(SignupScreenEvent.UserNameChanged(it))
                     },
-                    label = {
-                        Text(text = "User Name")
-                    },
-                    supportingText = {
-                        uiState.userNameError?.let{
-                            Text(text = uiState.userNameError, color = MaterialTheme.colorScheme.error)
-                        }
-                    },
-                    placeholder = {
-                        Text(text = "Enter User Name")
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    )
+                    label = "User Name",
+                    placeholder = "Enter User Name",
+                    supportingText = uiState.userNameError
                 )
-
-                OutlinedTextField(
-                    value = uiState.email,
+                AppTextField(
+                    state = uiState.email,
                     onValueChange = {
                         onEvent(SignupScreenEvent.OnEmailChanged(it))
                     },
-                    label = {
-                        Text(text = "Email")
-                    },
-                    supportingText = {
-                        uiState.emailError?.let{
-                            Text(text = uiState.emailError, color = MaterialTheme.colorScheme.error)
-                        }
-                    },
-                    placeholder = {
-                        Text(text = "Enter Email")
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    )
+                    label = "Email Address",
+                    placeholder = "Enter Email Address",
+                    supportingText = uiState.emailError,
+                    keyboardType = KeyboardType.Email
                 )
-                OutlinedTextField(
-                    value = uiState.password,
+                AppTextField(
+                    state = uiState.password,
+                    label = "Password",
+                    placeholder = "Enter Password",
+                    supportingText = uiState.passwordError,
                     onValueChange = {
                         onEvent(SignupScreenEvent.OnPasswordChanged(it))
                     },
-                    label = {
-                        Text(text = "Password")
-                    },
-                    supportingText = {
-                        uiState.passwordError?.let{
-                            Text(text = uiState.passwordError, color = MaterialTheme.colorScheme.error)
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    visualTransformation = PasswordVisualTransformation(),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    )
+                    visualTransformation = PasswordVisualTransformation()
                 )
-                OutlinedTextField(
-                    value = uiState.confirmPassword,
+                AppTextField(
+                    state = uiState.confirmPassword,
+                    label = "Confirm Password",
+                    placeholder = "Confirm Password",
+                    supportingText = uiState.confirmPasswordError,
                     onValueChange = {
                         onEvent(SignupScreenEvent.OnConfirmPasswordChanged(it))
                     },
-                    label = {
-                        Text(text = "Confirm Password")
-                    },
-                    supportingText = {
-                        uiState.confirmPasswordError?.let{
-                            Text(text = uiState.confirmPasswordError, color = MaterialTheme.colorScheme.error)
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done
-                    ),
-                    visualTransformation = PasswordVisualTransformation(),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    )
+                    imeAction = ImeAction.Done,
+                    visualTransformation = PasswordVisualTransformation()
                 )
                 Button(
                     onClick = {
