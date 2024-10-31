@@ -15,6 +15,11 @@ class ChannelMessageViewModel(
         setState(BaseUiState.Data(_uiState))
     }
 
+    override fun initUiState() {
+        _uiState = ChannelMessageUiState()
+        setState(BaseUiState.Data(_uiState))
+    }
+
     override fun onTriggerEvent(eventType: ChannelMessageScreenEvent) {
         when(eventType){
             is ChannelMessageScreenEvent.SetChannelId -> {

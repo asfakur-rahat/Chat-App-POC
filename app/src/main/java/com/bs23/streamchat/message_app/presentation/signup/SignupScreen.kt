@@ -29,34 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bs23.streamchat.core.presentation.components.AppTextField
 
-//@Composable
-//fun SignUpScreen(
-//    viewModel: SignupViewModel = koinViewModel(),
-//    gotoLogIn: () -> Unit
-//) {
-//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-//    when(uiState){
-//        is BaseUiState.Data -> {
-//            val data = uiState.cast<BaseUiState.Data<SignupScreenUiState>>().data
-//            SignUpScreenContent(
-//                uiState = data,
-//                onEvent = viewModel::onTriggerEvent,
-//                gotoLogIn = gotoLogIn
-//            )
-//        }
-//        BaseUiState.Empty -> {
-//            EmptyScreen(Modifier)
-//        }
-//        is BaseUiState.Error -> {
-//            val error = uiState.cast<BaseUiState.Error>().error
-//            ErrorScreen(Modifier, error)
-//        }
-//        BaseUiState.Loading -> {
-//            LoadingScreen(Modifier)
-//        }
-//    }
-//}
-
 @Composable
 fun SignUpScreenContent(
     uiState: SignupScreenUiState,

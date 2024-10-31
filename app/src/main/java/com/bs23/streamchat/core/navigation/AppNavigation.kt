@@ -47,6 +47,9 @@ fun AppNavigation(
             viewModel.initUiState()
             BaseScreen(
                 viewModel = viewModel,
+                onRetry = {
+                    viewModel.initUiState()
+                },
                 handleEffects = { effect ->
                     when(effect){
                         is SignupScreenEffect.NavigateToChannelScreen -> {
@@ -77,6 +80,9 @@ fun AppNavigation(
             viewModel.initUiState()
             BaseScreen(
                 viewModel = viewModel,
+                onRetry = {
+                    viewModel.initUiState()
+                },
                 handleEffects = { effect ->
                     when (effect) {
                         is LoginScreenEffect.NavigateToChannelScreen -> {
@@ -108,6 +114,9 @@ fun AppNavigation(
             val viewModel: ChannelViewModel = koinViewModel()
             BaseScreen(
                 viewModel = viewModel,
+                onRetry = {
+                    viewModel.initUiState()
+                },
                 oneTimeTrigger = {
                     viewModel.onTriggerEvent(ChannelListScreenEvent.SetCurrentUser(channel.userId))
                 },
@@ -146,6 +155,9 @@ fun AppNavigation(
             val viewModel: ChannelMessageViewModel = koinViewModel()
             BaseScreen(
                 viewModel = viewModel,
+                onRetry = {
+                    viewModel.initUiState()
+                },
                 oneTimeTrigger = {
                     viewModel.onTriggerEvent(ChannelMessageScreenEvent.SetChannelId(channelId = message.channelId))
                 }

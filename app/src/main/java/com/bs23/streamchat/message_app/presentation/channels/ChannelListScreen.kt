@@ -45,7 +45,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,12 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bs23.streamchat.core.presentation.base.BaseUiState
-import com.bs23.streamchat.core.presentation.components.EmptyScreen
-import com.bs23.streamchat.core.presentation.components.ErrorScreen
-import com.bs23.streamchat.core.presentation.components.LoadingScreen
-import com.bs23.streamchat.core.presentation.util.cast
+import com.bs23.streamchat.BuildConfig
 import io.getstream.chat.android.compose.ui.channels.ChannelsScreen
 import io.getstream.chat.android.compose.ui.components.SearchInput
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
@@ -74,46 +68,7 @@ import io.getstream.chat.android.compose.ui.theme.StreamColors
 import io.getstream.chat.android.compose.ui.theme.StreamShapes
 import io.getstream.chat.android.models.User
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 import kotlin.random.Random
-
-@Composable
-fun ChannelListScreen(
-    viewModel: ChannelViewModel = koinViewModel(),
-    backPress: () -> Unit,
-    userId: String,
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.onTriggerEvent(ChannelListScreenEvent.SetCurrentUser(userId))
-    }
-
-    when (uiState) {
-        is BaseUiState.Data -> {
-            val data = uiState.cast<BaseUiState.Data<ChannelListScreenUiState>>().data
-            ChannelListScreenContent(
-                uiState = data,
-                onEvent = viewModel::onTriggerEvent,
-                backPress = backPress,
-                userId = userId
-            )
-        }
-
-        BaseUiState.Empty -> {
-            EmptyScreen(Modifier)
-        }
-
-        is BaseUiState.Error -> {
-            val error = uiState.cast<BaseUiState.Error>().error
-            ErrorScreen(Modifier, error)
-        }
-
-        BaseUiState.Loading -> {
-            LoadingScreen(Modifier)
-        }
-    }
-}
 
 @Composable
 fun ChannelListScreenContent(
@@ -133,39 +88,52 @@ fun ChannelListScreenContent(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(drawerState) {
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(.7f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .fillMaxHeight()
+                        .fillMaxWidth(.7f)
                 ) {
-                    Text(text = "More Options")
-                    HorizontalDivider(Modifier.padding(horizontal = 50.dp))
-                    Spacer(Modifier.height(0.5.dp))
-                    HorizontalDivider(Modifier.padding(horizontal = 50.dp))
-                    Spacer(Modifier.height(20.dp))
-                    Text(text = "User Profile", modifier = Modifier.fillMaxWidth(.8f))
-                    Spacer(Modifier.height(8.dp))
-                    HorizontalDivider()
-                    Spacer(Modifier.height(8.dp))
-                    Text(text = "User Settings", modifier = Modifier.fillMaxWidth(.8f))
-                    Spacer(Modifier.height(8.dp))
-                    HorizontalDivider()
-                    Spacer(Modifier.height(8.dp))
-                    Row(
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .clickable {
-                                onEvent(ChannelListScreenEvent.OnClickLogout)
-                            }
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.Logout,
-                            contentDescription = "Log Out",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Text(text = "Log Out", color = MaterialTheme.colorScheme.error)
+                        Text(text = "More Options")
+                        HorizontalDivider(Modifier.padding(horizontal = 50.dp))
+                        Spacer(Modifier.height(0.5.dp))
+                        HorizontalDivider(Modifier.padding(horizontal = 50.dp))
+                        Spacer(Modifier.height(20.dp))
+                        Text(text = "User Profile", modifier = Modifier.fillMaxWidth(.8f))
+                        Spacer(Modifier.height(8.dp))
+                        HorizontalDivider()
+                        Spacer(Modifier.height(8.dp))
+                        Text(text = "User Settings", modifier = Modifier.fillMaxWidth(.8f))
+                        Spacer(Modifier.height(8.dp))
+                        HorizontalDivider()
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .clickable {
+                                    onEvent(ChannelListScreenEvent.OnClickLogout)
+                                }
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.Logout,
+                                contentDescription = "Log Out",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(Modifier.width(5.dp))
+                            Text(text = "Log Out", color = MaterialTheme.colorScheme.error)
+                        }
                     }
+                    Text(
+                        text = "Version ${BuildConfig.VERSION_NAME}",
+                        modifier = Modifier
+                            .padding(bottom = 50.dp)
+                            .align(Alignment.BottomCenter)
+                    )
                 }
             }
         }
@@ -531,7 +499,7 @@ private fun ShouldShowUserInformation(
                     .padding(top = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                UserAvatar(user)
+                AppUserAvatar(user)
                 Spacer(Modifier.height(8.dp))
                 Text(text = "User Information")
                 HorizontalDivider(Modifier.padding(horizontal = 50.dp))
@@ -569,7 +537,7 @@ private fun ShouldShowUserInformation(
 }
 
 @Composable
-fun UserAvatar(
+fun AppUserAvatar(
     user: User,
 ) {
     val red = Random.nextInt(100, 256)

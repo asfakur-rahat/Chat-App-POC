@@ -8,61 +8,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bs23.streamchat.core.presentation.base.BaseUiState
-import com.bs23.streamchat.core.presentation.components.EmptyScreen
-import com.bs23.streamchat.core.presentation.components.ErrorScreen
-import com.bs23.streamchat.core.presentation.components.LoadingScreen
-import com.bs23.streamchat.core.presentation.util.cast
 import io.getstream.chat.android.compose.ui.messages.MessagesScreen
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
 import io.getstream.chat.android.compose.ui.theme.StreamColors
 import io.getstream.chat.android.compose.ui.theme.StreamShapes
 import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFactory
-import org.koin.androidx.compose.koinViewModel
-
-@Composable
-fun ChannelMessageScreen(
-    channelId: String,
-    channelName: String,
-    goBack: () -> Unit,
-) {
-    val viewModel: ChannelMessageViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.onTriggerEvent(ChannelMessageScreenEvent.SetChannelId(channelId))
-    }
-
-    when (uiState) {
-        is BaseUiState.Data -> {
-            val data = uiState.cast<BaseUiState.Data<ChannelMessageUiState>>().data
-            ChannelMessageContent(
-                uiState = data,
-                channelId = channelId,
-                channelName = channelName,
-                onEvent = viewModel::onTriggerEvent,
-                goBack = goBack
-            )
-        }
-        BaseUiState.Empty -> {
-            EmptyScreen(Modifier)
-        }
-        is BaseUiState.Error -> {
-            val error = uiState.cast<BaseUiState.Error>().error
-            ErrorScreen(Modifier, error)
-        }
-        BaseUiState.Loading -> {
-            LoadingScreen(Modifier)
-        }
-    }
-}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable

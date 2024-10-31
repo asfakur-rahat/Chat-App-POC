@@ -16,7 +16,7 @@ class LoginViewModel(
 
     private var _uiState = LoginScreenUiState()
 
-    fun initUiState(){
+    override fun initUiState(){
         _uiState = LoginScreenUiState()
         setState(BaseUiState.Data(_uiState))
     }

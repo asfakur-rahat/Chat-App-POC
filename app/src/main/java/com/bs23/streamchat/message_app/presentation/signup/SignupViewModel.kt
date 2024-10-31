@@ -19,7 +19,7 @@ class SignupViewModel(
 
     private var _uiState = SignupScreenUiState()
 
-    fun initUiState() {
+    override fun initUiState() {
         _uiState = SignupScreenUiState()
         setState(BaseUiState.Data(_uiState))
     }
@@ -89,20 +89,17 @@ class SignupViewModel(
                                         ),
                                         token = it.token
                                     ).enqueue { result ->
-                                        println("Result after connecting user" + result)
+                                        //println("Result after connecting user $result")
                                         result.onSuccess { data ->
                                             _uiState = _uiState.copy(
                                                 userID = data.user.id,
                                             )
                                             setState(BaseUiState.Data(_uiState))
                                             setEffect(SignupScreenEffect.NavigateToChannelScreen(_uiState.userID))
-                                        }.onError {
+                                        }.onError { error ->
                                             setState(
                                                 BaseUiState.Error(
-                                                    Throwable(
-                                                        result.errorOrNull()?.message
-                                                            ?: "Unknown error"
-                                                    )
+                                                    Throwable(error.message)
                                                 )
                                             )
                                         }

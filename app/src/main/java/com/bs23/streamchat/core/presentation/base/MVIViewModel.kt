@@ -53,6 +53,7 @@ abstract class MVIViewModel<STATE: BaseUiState<*>, EVENT, EFFECT> : BaseViewMode
 
 
     abstract fun onTriggerEvent(eventType: EVENT)
+    abstract fun initUiState()
 
     protected fun setState(state: STATE) = safeLaunch {
         _uiState.emit(state)

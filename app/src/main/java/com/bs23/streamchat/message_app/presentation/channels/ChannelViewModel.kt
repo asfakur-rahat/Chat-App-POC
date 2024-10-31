@@ -24,6 +24,11 @@ class ChannelViewModel(
         setState(BaseUiState.Data(_uiState))
     }
 
+    override fun initUiState() {
+        _uiState = ChannelListScreenUiState()
+        setState(BaseUiState.Data(_uiState))
+    }
+
     override fun onTriggerEvent(eventType: ChannelListScreenEvent) {
         when(eventType){
             is ChannelListScreenEvent.OnCreateNewChannel -> createNewChannel(eventType.channelName)

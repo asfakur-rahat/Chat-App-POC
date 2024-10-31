@@ -48,6 +48,7 @@ fun <STATE, EVENT, EFFECT> BaseScreen(
     viewModel: MVIViewModel<BaseUiState<STATE>, EVENT, EFFECT>,
     handleEffects: (effect: EFFECT) -> Unit = {},
     oneTimeTrigger: suspend CoroutineScope.() -> Unit = {},
+    onRetry: () -> Unit = {},
     content: @Composable (uiState: STATE) -> Unit
 ) {
     val baseState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -65,7 +66,7 @@ fun <STATE, EVENT, EFFECT> BaseScreen(
         }
         is BaseUiState.Error -> {
             val error = baseState.cast<BaseUiState.Error>().error
-            ErrorScreen(Modifier, error)
+            ErrorScreen(Modifier, error, retry = onRetry)
         }
         BaseUiState.Loading -> {
             LoadingScreen(Modifier)
